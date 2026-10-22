@@ -1,0 +1,31 @@
+# Go
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace
+*.work
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Contracts (fetched externally)
+.contracts/
+
+# Generated code
+gen/
+
+# Junie session artifacts
+.junie/sessions/
