@@ -28,4 +28,4 @@ Thumbs.db
 gen/
 
 # Junie session artifacts
-.junie/sessions/
+.junie
