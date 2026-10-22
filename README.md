@@ -3,30 +3,30 @@
 [![Go Version](https://img.shields.io/badge/go-1.27+-blue.svg)](https://golang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Gelişim sürecinde olan** bir IEC 60870-5-104 protokol kütüphanesi.
+A **work-in-progress** IEC 60870-5-104 protocol library.
 
-Bu kütüphane, IEC 60870-5-104 protokolü üzerinden endüstriyel RTU/PLC cihazlarına bağlanmayı, ölçüm verilerini okumayı ve kontrol komutları göndermeyi sağlar. Go dilinde yazılmıştır ve sadece standart kütüphane bağımlılıklarını kullanır.
+This library provides connectivity to industrial RTU/PLC devices over the IEC 60870-5-104 protocol, enabling reading measurement data and sending control commands. It is written in Go and uses only standard library dependencies.
 
-## Özellikler
+## Features
 
-- **TCP bağlantı yönetimi** — IEC 104 master-side bağlantı, APCI state machine, T0/T1/T2 zamanlayıcılar
-- **Genel sorgu (General Interrogation)** — Bağlantı kurulduğunda cihazdan tüm ölçüm verilerini çekme
-- **Otomatik yeniden bağlanma** — Backoff ile kesilen bağlantıları geri alma
-- **Saat senkronizasyonu** — Cihaz saatini sistem saatiyle eşleştirme
-- **Komut gönderme** — Tek nokta, çift nokta, adım, süre komutları
-- **Kuyruk tabanlı komut yönetimi** — Dialogue kuralları (ACTCON) ile sıralı komut işleme
-- **Ölçüm önbelleği** — Son bilinen değerleri saklama ve delta tespiti
-- **Test edilebilir zaman** — `clock.Clock` arayüzü ile testlerde `time.Now()` yerine mock zaman
+- **TCP connection management** — IEC 104 master-side connection, APCI state machine, T0/T1/T2 timers
+- **General Interrogation** — Pull all measurement data from the device upon connection
+- **Automatic reconnection** — Reconnect dropped connections with backoff
+- **Clock synchronization** — Synchronize device clock with system time
+- **Command sending** — Single-point, double-point, step, and duration commands
+- **Queue-based command management** — Sequential command processing with dialogue rules (ACTCON)
+- **Measurement cache** — Store last known values and detect deltas
+- **Testable time** — `clock.Clock` interface for mocking `time.Now()` in tests
 
-## Kurulum
+## Installation
 
 ```bash
 go get github.com/radaren989/iec104
 ```
 
-## Kullanım
+## Usage
 
-### Station Oluşturma
+### Creating a Station
 
 ```go
 package main
@@ -60,12 +60,12 @@ func main() {
     }
     defer s.Release()
 
-    // Bağlantı otomatik olarak kurulur ve genel sorgu (GI) çalışır.
-    // Olaylar OnEvent callback'i ile gelir.
+    // Connection is established automatically and General Interrogation (GI) runs.
+    // Events arrive via the OnEvent callback.
 }
 ```
 
-### Komut Gönderme
+### Sending Commands
 
 ```go
 import (
@@ -74,7 +74,7 @@ import (
     "github.com/radaren989/iec104/station"
 )
 
-// Tek nokta komutu (C_SC_NA_1) — bir çıkışı aç/kapat
+// Single-point command (C_SC_NA_1) — open/close an output
 result, err := s.SendCommand(context.Background(), station.CommandRequest{
     Cmd: asdu.Command{
         Type: asdu.CScNa1,
@@ -85,33 +85,20 @@ result, err := s.SendCommand(context.Background(), station.CommandRequest{
 if err != nil {
     log.Fatal(err)
 }
-log.Printf("komut sonucu: %v", result)
+log.Printf("command result: %v", result)
 ```
 
-## Paket Yapısı
+## Package Structure
 
-| Paket | Açıklama |
-|-------|----------|
-| `station` | Yüksek seviye API — bağlantı, GI, önbellek, komutlar |
-| `conn` | TCP bağlantı ve APCI state machine |
-| `command` | Komut serileştirme, kuyruk, dialogue yönetimi |
-| `asdu` | ASDU header, TypeID, monitor ve control tipleri |
-| `apci` | APCI frame encode/decode, U-function, format sabitleri |
-| `clock` | Zaman arayüzü — production ve test için |
+| Package | Description |
+|---------|-------------|
+| `station` | High-level API — connection, GI, cache, commands |
+| `conn` | TCP connection and APCI state machine |
+| `command` | Command serialization, queue, dialogue management |
+| `asdu` | ASDU header, TypeID, monitor and control types |
+| `apci` | APCI frame encode/decode, U-function, format constants |
+| `clock` | Time interface — for production and testing |
 
-## Geliştirme
-
-```bash
-# Tüm paketleri derle
-make build
-
-# Testler (race detector ile)
-make test
-
-# Kalite kontrol (biçim + vet + lint + test)
-make check
-```
-
-## Lisans
+## License
 
 MIT
